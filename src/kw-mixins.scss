@@ -1,0 +1,23 @@
+@mixin transform($val...) {
+  -webkit-transform: $val;
+  -moz-transform: $val;
+  -ms-transform: $val;
+  -o-transform: $val;
+  transform: $val;
+}
+
+@mixin transition($val...) {
+  -webkit-transition: $val;
+  -moz-transition: $val;
+  -ms-transition: $val;
+  -o-transition: $val;
+  transition: $val;
+}
+
+@mixin opacity($val) {
+  $msval: $val * 100;
+
+  opacity: $val;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=#{$msval});
+  filter: alpha(opacity=#{$msval});
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+  <meta charset="UTF-8">
+  <title>Babel Training</title>
+  <link rel="stylesheet" href="dist/app.css"/>
+</head>
+<body>
+<header>
+  <div class="title-text">Babel Training</div>
+  <div class="sub-text">Simple application to demonstrate babel</div>
+</header>
+<div class="content">
+  <p>Welcome to the BabelTraining App!</p>
+</div>
+<footer>
+  &#x24B8; Gunnar Inc.
+</footer>
+<script type="text/javascript" src="node_modules/systemjs/dist/system-polyfills.js"></script>
+<script type="text/javascript" src="node_modules/systemjs/dist/system.js"></script>
+<script type="text/javascript">
+  System.config({
+    format: 'amd',
+    map: {
+      BabelTraining: 'dist/BabelTraining.js',
+      setup: 'dist/App.js'
+    },
+    meta: {
+      globals: {
+
+      }
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    System.import('setup');
+  });
+</script>
+</body>
+</html>
