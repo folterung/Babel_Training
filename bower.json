@@ -12,7 +12,7 @@
   "dependencies": {
     "angular": "angularjs#~1.4.9",
     "susy": "~2.2.11",
-    "compass-breakpoint": "breakpoint-sass#~2.6.1",
-    "angular-sanitize": "~1.4.9"
+    "angular-sanitize": "~1.4.9",
+    "breakpoint-sass": "~2.6.1"
   }
 }
