@@ -1,0 +1,18 @@
+{
+  "name": "Babel_Training",
+  "description": "Simple application demonstrating babel",
+  "main": "index.html",
+  "authors": [
+    "Kevin Warnock"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/folterung/Babel_Training",
+  "moduleType": [],
+  "private": true,
+  "dependencies": {
+    "angular": "angularjs#~1.4.9",
+    "susy": "~2.2.11",
+    "compass-breakpoint": "breakpoint-sass#~2.6.1",
+    "angular-sanitize": "~1.4.9"
+  }
+}

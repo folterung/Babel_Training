@@ -1,5 +1,5 @@
 @import '../bower_components/susy/sass/susy';
-@import '../bower_components/breakpoint-sass/stylesheets/breakpoint';
+@import '../bower_components/compass-breakpoint/stylesheets/breakpoint';
 @import 'material-design-palette';
 @import 'kw-mixins';
 
@@ -41,6 +41,7 @@ header {
   border-bottom: 3px solid blueGrey(700);
   box-sizing: border-box;
   padding-top: 30px;
+  color: white;
 
   @extend .round-bottom;
   @include transition(transform 1s cubic-bezier(.68,-0.37,.25,1.36));
@@ -50,41 +51,48 @@ header {
     font-size: $fs-h1;
     font-weight: $fw-bold;
     letter-spacing: 3px;
-    line-height: 70px;
-    color: white;
+    line-height: 55px;
   }
 
   .sub-text {
     font-size: $fs-sub-text;
-    line-height: 55px;
-    color: white;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+
+    &.menu {
+      li {
+        display: inline-block;
+        box-sizing: border-box;
+
+        a {
+          font-size: $fs-h4;
+          font-weight: $fw-bold;
+          text-decoration: none;
+          color: white;
+          padding: 1rem 2rem;
+
+          @include transition(color 0.5s ease, transform 0.5 cubic-bezier(.68,-0.37,.25,1.36));
+
+          &:active {
+            text-decoration: none;
+          }
+
+          &:hover, &:focus {
+            -webkit-animation: bounce 0.5s;
+            -o-animation: bounce 0.5s;
+            animation: bounce 0.5s;
+          }
+        }
+      }
+    }
   }
 
   &.active {
     @include transform(translateY(-30px));
-  }
-}
-
-.content {
-  position: fixed;
-  top: 125px;
-  bottom: 125px;
-  left: 0;
-  right: 0;
-  font-size: $fs-h3;
-  padding: 1.5rem;
-  box-sizing: border-box;
-
-  @include opacity(0);
-  @include transition(all 0.5s ease);
-
-  @include breakpoint($phone) {
-    text-align: center;
-    padding: 0.5rem;
-  };
-
-  &.active {
-    @include opacity(1);
   }
 }
 
@@ -94,8 +102,8 @@ footer {
   left: 0;
   right: 0;
   height: 155px;
-  border-top: 3px solid blueGrey(700);
-  background-color: deepOrange(700);
+  border-top: 3px solid deepOrange(500);
+  background-color: blueGrey(700);
   color: white;
   text-align: center;
   box-sizing: border-box;
@@ -112,6 +120,30 @@ footer {
   }
 }
 
+.content {
+  position: fixed;
+  top: 125px;
+  bottom: 125px;
+  left: 0;
+  right: 0;
+  font-size: $fs-h3;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  overflow: auto;
+
+  @include opacity(0);
+  @include transition(all 0.5s ease);
+
+  @include breakpoint($phone) {
+    text-align: center;
+    padding: 0.5rem;
+  };
+
+  &.active {
+    @include opacity(1);
+  }
+}
+
 .round-top {
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
@@ -120,4 +152,26 @@ footer {
 .round-bottom {
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
+}
+
+@keyframes bounce {
+  0% {
+    @include transform(scale(1,1));
+  }
+
+  25% {
+    @include transform(scale(0.6, 0.6));
+  }
+
+  50% {
+    @include transform(scale(1.2, 1.2));
+  }
+
+  75% {
+    @include transform(scale(0.8, 0.8));
+  }
+
+  100% {
+    @include transform(scale(1, 1));
+  }
 }

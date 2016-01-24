@@ -2,9 +2,10 @@ var gulp = require('gulp');
 var babel = require('gulp-babel');
 var sass = require('gulp-sass');
 
-gulp.task('default', ['babel', 'sass'], function() {
+gulp.task('default', ['babel', 'sass', 'move'], function() {
   gulp.watch('src/**/*.js', ['babel']);
   gulp.watch('src/**/*.scss', ['sass']);
+  gulp.watch('src/**/*.html', ['move']);
 });
 
 gulp.task('babel', function() {
@@ -25,6 +26,12 @@ gulp.task('sass', function() {
     .pipe(sass({
       outputStyle: 'compressed'
     }))
+    .on('error', onError)
+    .pipe(gulp.dest('dist'));
+});
+
+gulp.task('move', function() {
+  gulp.src('src/**/*.html')
     .on('error', onError)
     .pipe(gulp.dest('dist'));
 });

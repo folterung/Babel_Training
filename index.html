@@ -7,34 +7,71 @@
   <link rel="stylesheet" href="dist/app.css"/>
 </head>
 <body>
-<header>
-  <div class="title-text">Babel Training</div>
-  <div class="sub-text">Simple application to demonstrate babel</div>
+<header ng-controller="HeaderController as header">
+  <div class="title-text" ng-bind="::header.title"></div>
+  <div class="sub-text" ng-bind="::header.subtext"></div>
+  <ul class="menu">
+    <li>
+      <a href="#/home" title="{{::header.menu.links.home.title}}" ng-bind="::header.menu.links.home.text"></a>
+    </li>
+    <li>
+      <a href="#/chart" title="{{::header.menu.links.chart.title}}" ng-bind="::header.menu.links.chart.text"></a>
+    </li>
+  </ul>
 </header>
 <div class="content">
-  <p>Welcome to the BabelTraining App!</p>
+  <div ng-view></div>
 </div>
-<footer>
-  &#x24B8; Gunnar Inc.
-</footer>
+<footer ng-controller="FooterController as footer" ng-bind-html="::footer.copyright"></footer>
 <script type="text/javascript" src="node_modules/systemjs/dist/system-polyfills.js"></script>
 <script type="text/javascript" src="node_modules/systemjs/dist/system.js"></script>
 <script type="text/javascript">
   System.config({
     format: 'amd',
     map: {
-      BabelTraining: 'dist/BabelTraining.js',
-      setup: 'dist/App.js'
+      setup: 'dist/setup.js',
+      angular: 'bower_components/angular/angular.min.js',
+      sanitize: 'bower_components/angular-sanitize/angular-sanitize.min.js',
+      route: 'bower_components/angular-route/angular-route.min.js',
+      d3: 'bower_components/d3/d3.js',
+      App: 'dist/App.js',
+      HeaderModule: 'dist/header/header.module.js',
+      HeaderController: 'dist/header/header.controller.js',
+      FooterModule: 'dist/footer/footer.module.js',
+      FooterController: 'dist/footer/footer.controller.js',
+      HomeModule: 'dist/home/home.module.js',
+      HomeController: 'dist/home/home.controller.js',
+      ChartModule: 'dist/chart/chart.module.js',
+      ChartController: 'dist/chart/chart.controller.js',
+      FoltMeter: 'dist/foltmeter/foltmeter.js'
+    },
+    depCache: {
+      setup: ['sanitize', 'route', 'd3']
     },
     meta: {
-      globals: {
-
+      'bower_components/angular/angular.min.js': {
+        format: 'global',
+        exports: 'angular'
+      },
+      'bower_components/angular-sanitize/angular-sanitize.min.js': {
+        format: 'global',
+        exports: 'angular'
+      },
+      'route': {
+        format: 'global',
+        exports: 'angular'
+      },
+      'bower_components/d3/d3.min.js': {
+        format: 'global',
+        exports: 'd3'
       }
     }
   });
 
   document.addEventListener('DOMContentLoaded', function() {
-    System.import('setup');
+    System.import('angular').then(function() {
+      System.import('setup');
+    });
   });
 </script>
 </body>
