@@ -13,6 +13,8 @@
     "angular": "angularjs#~1.4.9",
     "susy": "~2.2.11",
     "angular-sanitize": "~1.4.9",
-    "breakpoint-sass": "~2.6.1"
+    "breakpoint-sass": "~2.6.1",
+    "angular-route": "~1.4.9",
+    "d3": "~3.5.13"
   }
 }
