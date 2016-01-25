@@ -116,6 +116,8 @@ export class FoltMeter {
       }
     });
 
+    console.log(delays);
+
     for(let i = 0; i < groups.length; i++) {
       this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), chunk, delays[i]);
     }
