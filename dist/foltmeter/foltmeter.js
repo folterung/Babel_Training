@@ -35,9 +35,7 @@ define(['exports'], function (exports) {
 
       _classCallCheck(this, FoltMeter);
 
-      this.delays = [];
-
-      this.checkD3();
+      FoltMeter.checkD3();
       this.container = d3.select(selector);
       this.width = outerRadius * 2;
       this.height = outerRadius * 2;
@@ -82,23 +80,18 @@ define(['exports'], function (exports) {
         var reverse = value < this.value;
         duration = duration || 0;
 
-        this.udpateArcs(value, duration, reverse);
-        this.updateGroups(reverse);
+        this.udpateArcs(value);
+        this.updateGroups(duration, reverse);
         this.value = value;
       }
     }, {
       key: 'udpateArcs',
-      value: function udpateArcs(value, duration, reverse) {
+      value: function udpateArcs(value) {
         var arcs = this.arcs;
         var arc = undefined;
 
-        this.delays = [];
-        this.durationChunk = duration / arcs.length;
-
         for (var i = 0; i < arcs.length; i++) {
           arc = arcs[i];
-
-          this.delays.push(this.durationChunk * i);
 
           if (value > arc.maxValue) {
             value -= arc.maxValue;
@@ -111,21 +104,95 @@ define(['exports'], function (exports) {
       }
     }, {
       key: 'updateGroups',
-      value: function updateGroups(reverse) {
+      value: function updateGroups(duration, reverse) {
         var groups = this.groups;
         var arcs = this.arcs;
+        var chunk = duration / groups.length;
+        var marker = this.getCurrentState(reverse);
+        var delays = [];
+        var counter = reverse ? this.groups.length : 0;
 
-        if (reverse) {
-          this.delays.reverse();
-        }
+        groups.map(function (group, i) {
+          if (!reverse) {
+            if (i < marker) {
+              delays.push(0);
+            } else {
+              delays.push(chunk * counter);
+              counter++;
+            }
+          } else {
+
+            if (i >= marker) {
+              delays.push(0);
+            } else {
+              delays.push(duration / counter);
+              counter--;
+            }
+          }
+        });
 
         for (var i = 0; i < groups.length; i++) {
-          this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), this.durationChunk, this.delays[i]);
+          this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), chunk, delays[i]);
+        }
+      }
+    }, {
+      key: 'getCurrentState',
+      value: function getCurrentState(reverse) {
+        var foundStart = undefined;
+
+        if (!reverse) {
+          for (var k = 0; k < this.groups.length; k++) {
+            var group = this.groups[k];
+            var arc = this.arcs[k];
+            var path = group.select('path:last-child')[0][0].__data__;
+
+            if (_isEmpty(path) || _isPartFull(path, arc)) {
+              foundStart = k;
+              break;
+            }
+          }
+        } else {
+          for (var k = this.groups.length - 1; k >= 0; k--) {
+            var group = this.groups[k];
+            var arc = this.arcs[k];
+            var path = group.select('path:last-child')[0][0].__data__;
+
+            if (_isFull(path, arc) || _isPartFull(path, arc)) {
+              foundStart = k;
+              break;
+            }
+          }
         }
 
-        if (reverse) {
-          this.delays.reverse();
+        return foundStart;
+
+        function _isEmpty(path) {
+          return path.startAngle === path.endAngle;
         }
+
+        function _isPartFull(path, arc) {
+          return path.endAngle > path.startAngle && !_isFull(path, arc);
+        }
+
+        function _isFull(path, arc) {
+          return path.endAngle === _rad(arc.range[1]);
+        }
+      }
+    }, {
+      key: 'saveArcState',
+      value: function saveArcState() {
+        var arcState = [];
+
+        this.arcs.map(function (arc) {
+          arcState.push([arc.minValue, arc.maxValue]);
+        });
+
+        this.arcState = arcState;
+      }
+    }, {
+      key: 'getStartArc',
+      value: function getStartArc() {
+        this.arcState.map(function (minValue, i) {});
       }
     }, {
       key: 'arcTween',
@@ -145,7 +212,7 @@ define(['exports'], function (exports) {
       value: function draw(group, arc, data, duration, delay) {
         group.selectAll("path").data(data).transition().delay(delay || 0).duration(duration).ease('linear').attrTween("d", this.arcTween(arc));
       }
-    }, {
+    }], [{
       key: 'checkD3',
       value: function checkD3() {
         if (!window.d3) {

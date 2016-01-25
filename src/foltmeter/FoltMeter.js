@@ -5,11 +5,12 @@ export class FoltMeter {
   colors;
   svg;
   arcs;
+  arcState;
   groups;
   value;
 
   constructor(selector, innerRadius, outerRadius, data) {
-    this.checkD3();
+    FoltMeter.checkD3();
     this.container = d3.select(selector);
     this.width = outerRadius * 2;
     this.height = outerRadius * 2;
@@ -92,23 +93,90 @@ export class FoltMeter {
     let groups = this.groups;
     let arcs = this.arcs;
     let chunk = duration / groups.length;
+    let marker = this.getCurrentState(reverse);
     let delays = [];
+    let counter = reverse ? this.groups.length : 0;
 
     groups.map((group, i) => {
-      delays.push(chunk * i);
+      if(!reverse) {
+        if(i < marker) {
+          delays.push(0);
+        } else {
+          delays.push(chunk * counter);
+          counter++;
+        }
+      } else {
+
+        if(i >= marker) {
+          delays.push(0);
+        } else {
+          delays.push(duration / counter);
+          counter--;
+        }
+      }
     });
 
-    if(reverse) {
-      this.delays.reverse();
-    }
-
     for(let i = 0; i < groups.length; i++) {
-      this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), this.durationChunk, this.delays[i]);
+      this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), chunk, delays[i]);
+    }
+  }
+
+  getCurrentState(reverse) {
+    let foundStart;
+
+    if(!reverse) {
+      for(let k = 0; k < this.groups.length; k++) {
+        let group = this.groups[k];
+        let arc = this.arcs[k];
+        let path = group.select('path:last-child')[0][0].__data__;
+
+        if(_isEmpty(path) || _isPartFull(path, arc)) {
+          foundStart = k;
+          break;
+        }
+      }
+    } else {
+      for(let k = (this.groups.length - 1); k >= 0; k--) {
+        let group = this.groups[k];
+        let arc = this.arcs[k];
+        let path = group.select('path:last-child')[0][0].__data__;
+
+        if(_isFull(path, arc) || _isPartFull(path, arc)) {
+          foundStart = k;
+          break;
+        }
+      }
     }
 
-    if(reverse) {
-      this.delays.reverse();
+    return foundStart;
+
+    function _isEmpty(path) {
+      return path.startAngle === path.endAngle;
     }
+
+    function _isPartFull(path,arc) {
+      return (path.endAngle > path.startAngle) && !_isFull(path, arc);
+    }
+
+    function _isFull(path, arc) {
+      return path.endAngle === _rad(arc.range[1]);
+    }
+  }
+
+  saveArcState() {
+    let arcState = [];
+
+    this.arcs.map((arc) => {
+      arcState.push([arc.minValue, arc.maxValue]);
+    });
+
+    this.arcState = arcState;
+  }
+
+  getStartArc() {
+    this.arcState.map((minValue, i) => {
+
+    });
   }
 
   arcTween(inputArc) {
@@ -133,7 +201,7 @@ export class FoltMeter {
       .attrTween("d", this.arcTween(arc));
   }
 
-  checkD3() {
+  static checkD3() {
     if (!window.d3) {
       throw new ReferenceError('d3.js is required for FoltMeter!');
     }
