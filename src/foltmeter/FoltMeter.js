@@ -7,8 +7,6 @@ export class FoltMeter {
   arcs;
   groups;
   value;
-  durationChunk;
-  delays = [];
 
   constructor(selector, innerRadius, outerRadius, data) {
     this.checkD3();
@@ -68,22 +66,17 @@ export class FoltMeter {
     let reverse = value < this.value;
     duration = duration || 0;
 
-    this.udpateArcs(value, duration, reverse);
-    this.updateGroups(reverse);
+    this.udpateArcs(value);
+    this.updateGroups(duration, reverse);
     this.value = value;
   }
 
-  udpateArcs(value, duration, reverse) {
+  udpateArcs(value) {
     let arcs = this.arcs;
     let arc;
 
-    this.delays = [];
-    this.durationChunk = duration / arcs.length;
-
     for(var i = 0; i < arcs.length; i++) {
       arc = arcs[i];
-
-      this.delays.push(this.durationChunk * i);
 
       if(value > arc.maxValue) {
         value -= arc.maxValue;
@@ -95,9 +88,15 @@ export class FoltMeter {
     }
   }
 
-  updateGroups(reverse) {
+  updateGroups(duration, reverse) {
     let groups = this.groups;
     let arcs = this.arcs;
+    let chunk = duration / groups.length;
+    let delays = [];
+
+    groups.map((group, i) => {
+      delays.push(chunk * i);
+    });
 
     if(reverse) {
       this.delays.reverse();
