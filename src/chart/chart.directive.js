@@ -16,7 +16,6 @@ export function ChartDirective() {
   };
 
   function link(scope, element, attrs) {
-    //var foltMeter = new FoltMeter('.chart-container', 55, 80, [100, 500, 1000]);
     let target = '#' + attrs.id;
 
     let meter = new FoltMeter(target, scope.chartInnerRadius, scope.chartOuterRadius, scope.chartSegmentMaxes);
