@@ -1,5 +1,5 @@
-define(["exports"], function (exports) {
-  "use strict";
+define(['exports'], function (exports) {
+  'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -30,168 +30,118 @@ define(["exports"], function (exports) {
   }();
 
   var FoltMeter = exports.FoltMeter = function () {
-    function FoltMeter(selector) {
+    function FoltMeter(selector, innerRadius, outerRadius, data) {
+      var _this = this;
+
       _classCallCheck(this, FoltMeter);
 
       this.checkD3();
-      this.element = d3.select(selector);
+      this.container = d3.select(selector);
+      this.width = outerRadius * 2;
+      this.height = outerRadius * 2;
+      this.colors = ['#CFD8DC', '#455A64'];
+      this.svg = this.container.append('svg');
+      this.masterGroup = this.svg.append('g');
+
+      this.arcs = [{
+        self: d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius),
+        range: [-90, -55],
+        minValue: 0,
+        maxValue: data[0]
+      }, {
+        self: d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius),
+        range: [-53, 10],
+        minValue: 0,
+        maxValue: data[1]
+      }, {
+        self: d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius),
+        range: [12, 90],
+        minValue: 0,
+        maxValue: data[2]
+      }];
+
+      this.groups = [this.masterGroup.append('g'), this.masterGroup.append('g'), this.masterGroup.append('g')];
+
+      this.svg.attr('width', this.width).attr('height', this.height / 2);
+      this.masterGroup.attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
+
+      this.groups.map(function (group, index) {
+        _this.groups[index].selectAll('path').data(_createDataset(_this.arcs[index])).enter().append('path').attr('fill', function (d, i) {
+          return _this.colors[i];
+        }).attr('d', _this.arcs[index].self).each(function (d) {
+          this._current = d;
+        });
+      });
     }
 
     _createClass(FoltMeter, [{
-      key: "create",
-      value: function create() {
-        var dataset = {
-          apples: [10, 100]
-        };
+      key: 'set',
+      value: function set(value, duration) {
+        var reverse = value < this.value;
+        duration = duration || 0;
 
-        var degree = Math.PI / 180;
+        this.udpateArcs(value, duration);
+        this.updateGroups(duration, reverse);
+        this.value = value;
+      }
+    }, {
+      key: 'udpateArcs',
+      value: function udpateArcs(value) {
+        var arcs = this.arcs;
+        var arc = undefined;
 
-        var width = 150,
-            height = 125;
+        for (var i = 0; i < arcs.length; i++) {
+          arc = arcs[i];
 
-        var color = d3.scale.category20();
+          if (value > arc.maxValue) {
+            value -= arc.maxValue;
+            arc.minValue = arc.maxValue;
+          } else {
+            arc.minValue = value;
+            value = 0;
+          }
+        }
+      }
+    }, {
+      key: 'updateGroups',
+      value: function updateGroups(duration, reverse) {
+        var groups = this.groups;
+        var arcs = this.arcs;
+        var durationChunk = duration / groups.length;
+        var delays = [];
 
-        var pie = d3.layout.pie().startAngle(-90 * degree).endAngle(90 * degree).sort(null);
+        for (var i = 0; i < groups.length; i++) {
+          delays.push(durationChunk * i);
+        }
 
-        var arc = d3.svg.arc().innerRadius(50).outerRadius(60);
+        if (reverse) {
+          delays.reverse();
+        }
 
-        var svg = d3.select(".chart-container").append("svg").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        for (var i = 0; i < groups.length; i++) {
+          this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), durationChunk, delays[i]);
+        }
+      }
+    }, {
+      key: 'arcTween',
+      value: function arcTween(inputArc) {
+        var arc = inputArc;
 
-        var path = svg.selectAll("path").data(pie(dataset.apples)).enter().append("path").attr("fill", function (d, i) {
-          return color(i);
-        }).attr("d", arc).each(function (d) {
-
-          this._current = d;
-        }); // store the initial values;
-
-        //window.setInterval(dummyData, 2000);
-
-        // Store the displayed angles in _current.
-        // Then, interpolate from _current to the new angles.
-        // During the transition, _current is updated in-place by d3.interpolate.
-        function arcTween(a) {
+        return function (a) {
           var i = d3.interpolate(this._current, a);
           this._current = i(0);
           return function (t) {
             return arc(i(t));
           };
-        }
-
-        function dummyData() {
-          var num = Math.floor(Math.random() * 100);
-          var key = Math.floor(Math.random() * dataset.apples.length);
-
-          dataset.apples[key] = num;
-
-          draw();
-        }
-
-        function draw() {
-          svg.selectAll("path").data(pie(dataset.apples)).transition().duration(2500).attrTween("d", arcTween);
-        }
+        };
       }
-
-      //create() {
-      //  let el = this.element.append('svg');
-      //
-      //  let arc_1 = d3.svg.arc();
-      //  let arc_2 = d3.svg.arc();
-      //  let arc_3 = d3.svg.arc();
-      //
-      //  let arc_1_start = d3.svg.arc();
-      //  let arc_2_start = d3.svg.arc();
-      //  let arc_3_start = d3.svg.arc();
-      //
-      //  let path_1 = el.append('path');
-      //  let path_2 = el.append('path');
-      //  let path_3 = el.append('path');
-      //
-      //  arc_1.innerRadius(50);
-      //  arc_1.outerRadius(60);
-      //  arc_1.startAngle(_toRadian(-90));
-      //  arc_1.endAngle(_toRadian(-75));
-      //
-      //  arc_1_start.innerRadius(50);
-      //  arc_1_start.outerRadius(60);
-      //  arc_1_start.startAngle(_toRadian(-90));
-      //  arc_1_start.endAngle(_toRadian(-87));
-      //
-      //  arc_2.innerRadius(50);
-      //  arc_2.outerRadius(60);
-      //  arc_2.startAngle(_toRadian(-65));
-      //  arc_2.endAngle(_toRadian(0));
-      //
-      //  arc_2_start.innerRadius(50);
-      //  arc_2_start.outerRadius(60);
-      //  arc_2_start.startAngle(_toRadian(-65));
-      //  arc_2_start.endAngle(_toRadian(-62));
-      //
-      //  arc_3.innerRadius(50);
-      //  arc_3.outerRadius(60);
-      //  arc_3.startAngle(_toRadian(10));
-      //  arc_3.endAngle(_toRadian(90));
-      //
-      //  arc_3_start.innerRadius(50);
-      //  arc_3_start.outerRadius(60);
-      //  arc_3_start.startAngle(_toRadian(10));
-      //  arc_3_start.endAngle(_toRadian(13));
-      //
-      //  el.attr('width', '400');
-      //  el.attr('height', '400');
-      //
-      //  path_1.attr('d', arc_1_start);
-      //  path_1.attr('fill', 'orange');
-      //  path_1.attr('transform', 'translate(200, 200)');
-      //
-      //  path_2.attr('d', arc_2_start);
-      //  path_2.attr('fill', 'orange');
-      //  path_2.attr('transform', 'translate(200, 200)');
-      //
-      //  path_3.attr('d', arc_3_start);
-      //  path_3.attr('fill', 'orange');
-      //  path_3.attr('transform', 'translate(200, 200)');
-      //
-      //  setTimeout(() => {
-      //    path_1
-      //      .data(arc_1([15, 90]))
-      //      .transition()
-      //      .duration(1000)
-      //      .each((d) => {
-      //        arc_1._current = d;
-      //      })
-      //      .attrTween('d', _arcTween(arc_1, _toRadian(-75)));
-      //  }, 2000);
-      //
-      //  setTimeout(() => {
-      //    path_2
-      //      .transition()
-      //      .duration(500)
-      //      .attr('d', arc_2);
-      //  }, 3000);
-      //
-      //  setTimeout(() => {
-      //    path_3
-      //      .transition()
-      //      .duration(500)
-      //      .attr('d', arc_3);
-      //  }, 4000);
-      //
-      //  function _toRadian(deg) {
-      //    return deg * (Math.PI/180);
-      //  }
-      //
-      //  function _arcTween(arc, b){
-      //    var i = d3.interpolate(arc._current, b);
-      //    arc._current = i(0);
-      //
-      //    return function(t) {
-      //      return arc(i(t));
-      //    };
-      //  }
-      //}
-
     }, {
-      key: "checkD3",
+      key: 'draw',
+      value: function draw(group, arc, data, duration, delay) {
+        group.selectAll("path").data(data).transition().delay(delay || 0).duration(duration).ease('linear').attrTween("d", this.arcTween(arc));
+      }
+    }, {
+      key: 'checkD3',
       value: function checkD3() {
         if (!window.d3) {
           throw new ReferenceError('d3.js is required for FoltMeter!');
@@ -201,4 +151,73 @@ define(["exports"], function (exports) {
 
     return FoltMeter;
   }();
+
+  function _rad(deg) {
+    return deg * (Math.PI / 180);
+  }
+
+  function _setSingleVal(val, minRad, maxRad) {
+    return {
+      data: val,
+      startAngle: minRad,
+      endAngle: maxRad,
+      value: val
+    };
+  }
+
+  function _getPercentVal(num1, num2, minDeg, maxDeg) {
+    var percentage = num1 / num2;
+    var delta = Math.abs(minDeg - maxDeg);
+    var degDiff = delta * percentage;
+    var newDeg = minDeg + degDiff;
+
+    if (percentage === 1 && newDeg !== maxDeg) {
+      newDeg *= -1;
+    }
+
+    return _rad(newDeg);
+  }
+
+  function _createDataset(arc) {
+    return [_setSingleVal(arc.minValue, _rad(arc.range[0]), _rad(arc.range[1])), _setSingleVal(arc.minValue, _rad(arc.range[0]), _getPercentVal(arc.minValue, arc.maxValue, arc.range[0], arc.range[1]))];
+  }
+
+  function _getDelays(groups, arcs, duration, flip) {
+    var delays = [];
+    var currentArc = undefined;
+    var nextArc = undefined;
+    var durationChunk = duration / groups.length;
+
+    if (flip) {
+      for (var i = 0; i < groups.length; i++) {
+        delays.push(duration * i);
+      }
+    } else {
+      for (var i = 0; i < groups.length; i++) {
+        currentArc = arcs[i];
+        nextArc = arcs[i + 1];
+
+        if (_arcHasValue(currentArc)) {
+          delays.push(0);
+        } else {
+          delays.push(durationChunk);
+          durationChunk += durationChunk;
+        }
+      }
+    }
+
+    function _arcHasValue(arc) {
+      return arc.minValue > 0;
+    }
+
+    function _arcIsFull(arc) {
+      return arc.minValue === arc.maxValue;
+    }
+
+    function _arcIsEmpty(arc) {
+      return arc && arc.minValue === 0;
+    }
+
+    return delays;
+  }
 });
