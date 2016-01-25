@@ -95,28 +95,31 @@ export class FoltMeter {
     let chunk = duration / groups.length;
     let marker = this.getCurrentState(reverse);
     let delays = [];
-    let counter = reverse ? this.groups.length : 0;
+    let counter = 0;
 
-    groups.map((group, i) => {
-      if(!reverse) {
+    if(!reverse) {
+      groups.map((group, i) => {
         if(i < marker) {
           delays.push(0);
         } else {
           delays.push(chunk * counter);
           counter++;
         }
-      } else {
+      });
+    } else {
+      counter = 1;
 
+      for(let i = (groups.length - 1); i >= 0; i--) {
         if(i >= marker) {
           delays.push(0);
         } else {
-          delays.push(duration / counter);
-          counter--;
+          delays.push(chunk * counter);
+          counter++;
         }
       }
-    });
 
-    console.log(delays);
+      delays.reverse();
+    }
 
     for(let i = 0; i < groups.length; i++) {
       this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), chunk, delays[i]);

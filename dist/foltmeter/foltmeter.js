@@ -110,28 +110,31 @@ define(['exports'], function (exports) {
         var chunk = duration / groups.length;
         var marker = this.getCurrentState(reverse);
         var delays = [];
-        var counter = reverse ? this.groups.length : 0;
+        var counter = 0;
 
-        groups.map(function (group, i) {
-          if (!reverse) {
+        if (!reverse) {
+          groups.map(function (group, i) {
             if (i < marker) {
               delays.push(0);
             } else {
               delays.push(chunk * counter);
               counter++;
             }
-          } else {
+          });
+        } else {
+          counter = 1;
 
+          for (var i = groups.length - 1; i >= 0; i--) {
             if (i >= marker) {
               delays.push(0);
             } else {
-              delays.push(duration / counter);
-              counter--;
+              delays.push(chunk * counter);
+              counter++;
             }
           }
-        });
 
-        console.log(delays);
+          delays.reverse();
+        }
 
         for (var i = 0; i < groups.length; i++) {
           this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), chunk, delays[i]);
