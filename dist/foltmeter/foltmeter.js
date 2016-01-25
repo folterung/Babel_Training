@@ -35,6 +35,8 @@ define(['exports'], function (exports) {
 
       _classCallCheck(this, FoltMeter);
 
+      this.delays = [];
+
       this.checkD3();
       this.container = d3.select(selector);
       this.width = outerRadius * 2;
@@ -80,18 +82,23 @@ define(['exports'], function (exports) {
         var reverse = value < this.value;
         duration = duration || 0;
 
-        this.udpateArcs(value, duration);
-        this.updateGroups(duration, reverse);
+        this.udpateArcs(value, duration, reverse);
+        this.updateGroups(reverse);
         this.value = value;
       }
     }, {
       key: 'udpateArcs',
-      value: function udpateArcs(value) {
+      value: function udpateArcs(value, duration, reverse) {
         var arcs = this.arcs;
         var arc = undefined;
 
+        this.delays = [];
+        this.durationChunk = duration / arcs.length;
+
         for (var i = 0; i < arcs.length; i++) {
           arc = arcs[i];
+
+          this.delays.push(this.durationChunk * i);
 
           if (value > arc.maxValue) {
             value -= arc.maxValue;
@@ -104,22 +111,20 @@ define(['exports'], function (exports) {
       }
     }, {
       key: 'updateGroups',
-      value: function updateGroups(duration, reverse) {
+      value: function updateGroups(reverse) {
         var groups = this.groups;
         var arcs = this.arcs;
-        var durationChunk = duration / groups.length;
-        var delays = [];
+
+        if (reverse) {
+          this.delays.reverse();
+        }
 
         for (var i = 0; i < groups.length; i++) {
-          delays.push(durationChunk * i);
+          this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), this.durationChunk, this.delays[i]);
         }
 
         if (reverse) {
-          delays.reverse();
-        }
-
-        for (var i = 0; i < groups.length; i++) {
-          this.draw(groups[i], arcs[i].self, _createDataset(arcs[i]), durationChunk, delays[i]);
+          this.delays.reverse();
         }
       }
     }, {
