@@ -6,10 +6,10 @@ export function ChartController() {
   let chart = this;
 
   chart.text = 'Chart page!';
-  chart.innerRadius = 50;
-  chart.outerRadius = 80;
+  chart.innerRadius = 100;
+  chart.outerRadius = 200;
   chart.initData = [100, 500, 1000];
-  chart.duration = 750;
+  chart.duration = 250;
   chart.value = 0;
   chart.fill = fill;
 

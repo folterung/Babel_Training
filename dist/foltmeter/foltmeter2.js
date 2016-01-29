@@ -78,6 +78,9 @@ define(['exports'], function (exports) {
 
       this.groups = [this.svg.append('g'), this.svg.append('g')];
 
+      this.svg.attr('width', this.width);
+      this.svg.attr('height', this.height / 2);
+
       this.svg.selectAll('g').attr('transform', 'translate(' + this.width / 2 + ',' + this.height / 2 + ')');
 
       this.groups.map(function (group, i) {
