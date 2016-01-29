@@ -1,4 +1,4 @@
-define(['exports', 'FoltMeter'], function (exports, _FoltMeter) {
+define(['exports', 'Foltmeter2'], function (exports, _Foltmeter) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {

@@ -1,4 +1,4 @@
-import {FoltMeter} from 'FoltMeter';
+import {Foltmeter2} from 'Foltmeter2';
 
 ChartDirective.$inject = [];
 
@@ -18,7 +18,7 @@ export function ChartDirective() {
   function link(scope, element, attrs) {
     let target = '#' + attrs.id;
 
-    let meter = new FoltMeter(target, scope.chartInnerRadius, scope.chartOuterRadius, scope.chartSegmentMaxes);
+    let meter = new Foltmeter2(target, scope.chartInnerRadius, scope.chartOuterRadius, scope.chartSegmentMaxes);
 
     scope.$watch('chartValue', function(val) {
       if(val) {
